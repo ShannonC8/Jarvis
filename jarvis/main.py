@@ -15,6 +15,10 @@ import json
 import time
 from pathlib import Path
 from datetime import date, timedelta
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+import math
 
 
 USERNAME = config('USER')
@@ -86,12 +90,13 @@ def take_user_input(runer):
                 if (not 'hey Jarvis'in query) and (runer == True) :
                     print(query)
                     speak(choice(opening_text))
+                    runer = False
                     #MIGHT BE ERROR
                 else:
                     if('hey Jarvis' in query):
                         print("yes")
                         runer = True
-                        speak("what's up?")
+                        speak("What's up?")
             else:
                 runer = False
                 speak("got it, let me know if you need Anything")
@@ -150,9 +155,12 @@ if __name__ == '__main__':
             video = ask_question('What video do you want to play?')
             play_on_youtube(video)
 
-        elif 'google' in query :
+        elif 'google' in query or 'look up' in query:
             #quer =ask_question('What do you want to search on Google?')
-            search_on_google(query.replace('google',''))
+            query = query.replace('google','')
+            query = query.replace('look up', '')
+            query = query.replace('can you', '')
+            search_on_google(query)
 
         elif 'how' in query :
             search_on_google(query)
@@ -219,21 +227,24 @@ if __name__ == '__main__':
         elif 'thanks' in query or 'thank you' in query:
             speak(f"no problem")
 
-##MKE ONE FUCNTION
         elif 'lower' in query or 'softer' in query or 'quiter' in query or 'down' in query:
-            volume_chage(-6.0)
+            volume_change(-6.0)
+            speak("the volume has been lowered")
 
         elif 'raise' in query or 'louder' in query or 'up' in query:
             volume_change(6.0)
+            speak("the volume has been raised")
 
-        elif 'set' in query and 'volume' in query:
+        elif ('set' in query or 'change' in query) and 'volume' in query:
             devices = AudioUtilities.GetSpeakers()
             interface = devices.Activate(
                 IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
             volume = cast(interface, POINTER(IAudioEndpointVolume))
             vol = ask_question("What volume would you like me to set it to?")
-            if vol.is_integer():
-                volume.SetMasterVolumeLevel(vol, None)
+            if vol.isnumeric():
+                print(vol)
+                volume.SetMasterVolumeLevel(-((int(vol)) * 1.0 ), None)
+                speak(f"the volume has been set to{vol}")
             else:
                 speak("not a number")
 
