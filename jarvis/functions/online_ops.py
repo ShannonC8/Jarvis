@@ -8,7 +8,7 @@ from decouple import config
 
 import datetime
 import os.path
-
+import wolframalpha
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -22,6 +22,7 @@ PASSWORD = config("PASSWORD")
 OPENWEATHER_APP_ID = config("OPENWEATHER_APP_ID")
 NEWS_API_KEY = config("NEWS_API_KEY")
 TMDB_API_KEY = config("TMDB_API_KEY")
+API_KEY = config("WOLFRAM_ID")
 
 def find_my_ip():
     ip_address = requests.get('https://api64.ipify.org?format=json').json()
@@ -103,3 +104,13 @@ def get_trending_movies():
     for r in results:
         trending_movies.append(r["original_title"])
     return trending_movies[:5]
+
+def wolfram(uery):
+    client = wolframalpha.Client(API_KEY)
+    try:
+        res = client.query(uery)
+        result = next(res.results).text
+        print(result)
+        return(result)
+    except Exception:
+        return("No results")

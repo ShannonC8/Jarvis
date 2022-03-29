@@ -1,14 +1,15 @@
 import requests
 from flask import Flask
 from functions.online_ops import find_my_ip, get_latest_news, get_trending_movies, \
-    get_weather_report, play_on_youtube, search_on_google, search_on_wikipedia, send_email, play_song, play_playlist, get_random_joke
+    get_weather_report, play_on_youtube, search_on_google, search_on_wikipedia, send_email, play_song, play_playlist, get_random_joke,\
+    wolfram
 import pyttsx3
 import speech_recognition as sr
 from decouple import config
 from datetime import datetime
 from functions.os_ops import open_calculator, open_camera, open_cmd, open_notepad, close_camera, volume_change
 from random import choice
-from utils import opening_text
+from utils import opening_text, response
 from pprint import pprint
 import os
 import json
@@ -19,6 +20,10 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import math
+
+#TO DO:
+# add to calender
+# search and find amaon
 
 
 USERNAME = config('USER')
@@ -86,20 +91,15 @@ def take_user_input(runer):
             print('Recognizing...')
         query = r.recognize_google(audio, language='en-in')#r.recognize_google(audio, language='en-in')
         if not 'exit' in query or 'stop' in query:
-            if not 'for now' in query:
-                if (not 'hey Jarvis'in query) and (runer == True) :
-                    print(query)
-                    speak(choice(opening_text))
-                    runer = False
-                    #MIGHT BE ERROR
-                else:
-                    if('hey Jarvis' in query):
-                        print("yes")
-                        runer = True
-                        speak("What's up?")
-            else:
+            if (not 'hey Jarvis'in query) and (runer == True) :
+                print(query)
+                speak(choice(opening_text))
                 runer = False
-                speak("got it, let me know if you need Anything")
+                    #MIGHT BE ERROR
+            else:
+                if('hey Jarvis' in query):
+                    runer = True
+                    speak(choice(response))
         else:
             hour = datetime.now().hour
             if hour >= 21 and hour < 6:
@@ -151,16 +151,30 @@ if __name__ == '__main__':
             speak("For your convenience, I am printing it on the screen.")
             print(results)
 
-        elif 'youtube' in query or 'video' in query:
-            video = ask_question('What video do you want to play?')
-            play_on_youtube(video)
+        elif 'song' in query or 'music' in query:
+            song = ask_question(f"what song would you like to play?")
+            play_song(song)
+
+        elif 'youtube' in query or 'video' in query or 'play' in query:
+            #video = ask_question('What video do you want to play?')
+            try:
+                if 'play' in query:
+                    query.rplit('play')[1]
+                query.replace('youtube','')
+                play_on_youtube(query)
+            except Exception:
+                speak("not a valid searcg")
+
 
         elif 'google' in query or 'look up' in query:
-            #quer =ask_question('What do you want to search on Google?')
-            query = query.replace('google','')
-            query = query.replace('look up', '')
-            query = query.replace('can you', '')
-            search_on_google(query)
+            if 'google' in query:
+                query = query.split('google', 1)[1]
+            if "look up" in query:
+                query = query.rsplit('look up')[1]
+            try:
+                search_on_google(query)
+            except Exception:
+                print("not a valid question")
 
         elif 'how' in query :
             search_on_google(query)
@@ -170,7 +184,7 @@ if __name__ == '__main__':
             joke = get_random_joke()
             speak(joke)
 
-        elif 'who' in query:
+        elif 'Wikipedia' in query or 'who' in query:
             results = search_on_wikipedia(query)
             speak(f"According to Wikipedia, {results}")
             speak("For your convenience, I am printing it on the screen.")
@@ -211,9 +225,6 @@ if __name__ == '__main__':
             speak("For your convenience, I am printing it on the screen.")
             print(f"Description: {weather}\nTemperature: {temperature}\nFeels like: {feels_like}")
 
-        elif 'song' in query or 'music' in query:
-            song = ask_question(f"what song would you like to play?")
-            play_song(song)
 
         elif 'date' in query:
             speak(datetime.now())
@@ -223,9 +234,6 @@ if __name__ == '__main__':
         elif 'playlist' in query:
             playlist = ask_question(f"what playlist would you like to play?")
             play_playlist(playlist)
-
-        elif 'thanks' in query or 'thank you' in query:
-            speak(f"no problem")
 
         elif 'lower' in query or 'softer' in query or 'quiter' in query or 'down' in query:
             volume_change(-6.0)
@@ -246,6 +254,10 @@ if __name__ == '__main__':
                 volume.SetMasterVolumeLevel(-((int(vol)) * 1.0 ), None)
                 speak(f"the volume has been set to{vol}")
             else:
-                speak("not a number")
+                speak(f"Sorry, that's not a number I cannot set the volume to{vol}")
+
+        elif 'what' in query:
+            speak(wolfram(query))
+
 
 
