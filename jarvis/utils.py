@@ -4,6 +4,7 @@ opening_text = [
     "Okay, I'm working on it.",
     "Just a second.",
     "You got it",
+    "right away"
 ]
 
 response = [
@@ -11,3 +12,5 @@ response = [
     "Whats up?",
     "What do you need?"
 ]
+
+

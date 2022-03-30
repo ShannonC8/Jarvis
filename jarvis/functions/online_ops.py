@@ -5,10 +5,10 @@ from email.message import EmailMessage
 import smtplib
 from decouple import config
 #from __future__ import print_function
-
 import datetime
 import os.path
 import wolframalpha
+from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -23,6 +23,7 @@ OPENWEATHER_APP_ID = config("OPENWEATHER_APP_ID")
 NEWS_API_KEY = config("NEWS_API_KEY")
 TMDB_API_KEY = config("TMDB_API_KEY")
 API_KEY = config("WOLFRAM_ID")
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 def find_my_ip():
     ip_address = requests.get('https://api64.ipify.org?format=json').json()
@@ -114,3 +115,6 @@ def wolfram(uery):
         return(result)
     except Exception:
         return("No results")
+
+
+
