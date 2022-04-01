@@ -7,7 +7,10 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import math
+from pynput.keyboard import Key, Controller
+import win32api
 
+keyboard = Controller()
 
 
 paths = {
@@ -21,20 +24,30 @@ clientID = 'Your_Client_Id'
 clientSecret = 'Your_Client_Secret'
 redirectURI = 'http://google.com/'
 
+def pause():
+    #Key.media_play_pause
+    win32api.keybd_event(0xb3, 34)
+
+def start_over():
+    keyboard.press('0')
+
 def open_notepad():
     os.startfile(paths['notepad'])
 
 def volume_change(vol):
-    devices = AudioUtilities.GetSpeakers()
-    interface = devices.Activate(
-        IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    volume = cast(interface, POINTER(IAudioEndpointVolume))
-    currentVolumeDb = volume.GetMasterVolumeLevel()
-    volume.SetMasterVolumeLevel(currentVolumeDb + vol, None)
+    try:
+        devices = AudioUtilities.GetSpeakers()
+        interface = devices.Activate(
+            IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume = cast(interface, POINTER(IAudioEndpointVolume))
+        currentVolumeDb = volume.GetMasterVolumeLevel()
+        volume.SetMasterVolumeLevel(currentVolumeDb + vol, None)
+        return""
+    except Exception:
+        return"not possible"
 
 def open_cmd():
     os.system('start cmd')
-
 
 def open_camera():
     sp.run('start microsoft.windows.camera:', shell=True)

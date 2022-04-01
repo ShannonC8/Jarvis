@@ -5,10 +5,10 @@ opening_text = [
     "Just a second.",
     "You got it",
     "right away"
+    "bet"
 ]
 
 response = [
-    "How can I help?",
     "Whats up?",
     "What do you need?"
 ]

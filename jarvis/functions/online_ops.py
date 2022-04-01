@@ -49,7 +49,6 @@ def play_song(song):
 def play_playlist(playlist):
     kit.playonyt(f"{playlist}playlist")
 
-
 def search_on_google(query):
     kit.search(query)
 
@@ -72,7 +71,6 @@ def send_email(receiver_address, subject, message):
 
 #def create_event():
     #try:
-
 
 #In the above method, we're first creating an empty list called news_headlines.
 # We are then making a GET request on the API URL specified in the NewsAPI Documentation.
